@@ -6,11 +6,11 @@ export function AppLayout() {
   const navigate = useNavigate();
 
   const navItems = [
-    { id: 'home', label: 'Home', icon: Home, path: '/' },
-    { id: 'discover', label: 'Discover', icon: Search, path: '/discover' },
-    { id: 'shortlist', label: 'Shortlist', icon: Heart, path: '/shortlist' },
-    { id: 'advisor', label: 'Advisor', icon: MessageCircle, path: '/advisor' },
-    { id: 'me', label: 'Me', icon: User, path: '/profile' },
+    { id: 'home', label: 'Home', icon: Home, path: '/', enabled: true },
+    { id: 'discover', label: 'Discover', icon: Search, path: '/discover', enabled: true },
+    { id: 'shortlist', label: 'Shortlist', icon: Heart, path: '/shortlist', enabled: false },
+    { id: 'advisor', label: 'Advisor', icon: MessageCircle, path: '/advisor', enabled: false },
+    { id: 'me', label: 'Me', icon: User, path: '/profile', enabled: false },
   ];
 
   const isActive = (path: string) => {
@@ -19,33 +19,38 @@ export function AppLayout() {
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-[390px] mx-auto bg-white">
-      {/* Main content area with scroll */}
+    <div className="flex flex-col h-screen w-full bg-gray-100">
+      {/* Main content area with scroll - responsive container */}
       <main className="flex-1 overflow-y-auto pb-[72px]">
-        <Outlet />
+        <div className="w-full max-w-[1200px] mx-auto bg-white min-h-full md:shadow-lg">
+          <Outlet />
+        </div>
       </main>
 
-      {/* Bottom Navigation - Fixed */}
-      <nav className="fixed bottom-0 left-0 right-0 max-w-[390px] mx-auto h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-2 z-50">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.path);
-          
-          return (
-            <button
-              key={item.id}
-              onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
-                active ? 'text-[#01696F]' : 'text-gray-500'
-              }`}
-            >
-              <Icon className="w-6 h-6 mb-1" strokeWidth={active ? 2.5 : 2} />
-              <span className={`text-xs ${active ? 'font-semibold' : 'font-normal'}`}>
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
+      {/* Bottom Navigation - Fixed and responsive */}
+      <nav className="fixed bottom-0 left-0 right-0 h-[72px] bg-white border-t border-gray-200 flex items-center justify-around px-2 z-50 md:shadow-xl">
+        <div className="w-full max-w-[1200px] mx-auto flex items-center justify-around">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.path);
+            
+            return (
+              <button
+                key={item.id}
+                onClick={() => item.enabled && navigate(item.path)}
+                disabled={!item.enabled}
+                className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+                  active ? 'text-[#01696F]' : item.enabled ? 'text-gray-500' : 'text-gray-300'
+                }`}
+              >
+                <Icon className="w-6 h-6 mb-1" strokeWidth={active ? 2.5 : 2} />
+                <span className={`text-xs ${active ? 'font-semibold' : 'font-normal'}`}>
+                  {item.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </nav>
     </div>
   );

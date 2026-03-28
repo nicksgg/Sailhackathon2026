@@ -31,10 +31,10 @@ export function Landing() {
   ];
 
   const quickLinks = [
-    { label: 'View Floor Plans', path: '/discover' },
-    { label: 'Calculate Affordability', path: '/calculator' },
-    { label: 'Book Showflat', path: '/booking' },
-    { label: 'Download E-Brochure', path: '/documents' },
+    { label: 'View Floor Plans', action: () => navigate('/discover') },
+    { label: 'Calculate Affordability', action: () => alert('Calculator screen coming soon!') },
+    { label: 'Book Showflat', action: () => alert('Booking screen coming soon!') },
+    { label: 'Download E-Brochure', action: () => alert('Documents screen coming soon!') },
   ];
 
   return (
@@ -80,7 +80,7 @@ export function Landing() {
           Explore Units
         </Button>
         <Button
-          onClick={() => navigate('/advisor')}
+          onClick={() => alert('Advisor chat will be added later!')}
           variant="outline"
           className="w-full h-12 border-2 border-[#01696F] text-[#01696F] hover:bg-[#01696F]/5 font-semibold rounded-xl"
         >
@@ -128,11 +128,11 @@ export function Landing() {
       {/* Quick Links */}
       <div className="px-4 py-6">
         <h2 className="text-lg font-semibold mb-4 text-gray-900">Quick Links</h2>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {quickLinks.map((link, index) => (
             <button
               key={index}
-              onClick={() => navigate(link.path)}
+              onClick={link.action}
               className="bg-white border border-gray-200 rounded-xl p-4 text-left hover:border-[#01696F] hover:bg-[#01696F]/5 transition-colors"
             >
               <span className="text-sm font-medium text-gray-900">{link.label}</span>
