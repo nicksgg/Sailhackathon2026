@@ -1,169 +1,292 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Map, Layers, Info } from 'lucide-react';
 import { Button } from '../components/ui/button';
+
+const BLOCKS = [
+  { id: 'A', label: 'Block A', floors: 25, units: 200, x: 15, y: 20, w: 22, h: 45, color: '#01696F' },
+  { id: 'B', label: 'Block B', floors: 25, units: 200, x: 42, y: 15, w: 22, h: 45, color: '#0C4E54' },
+  { id: 'C', label: 'Block C', floors: 25, units: 200, x: 68, y: 25, w: 22, h: 45, color: '#1B7A80' },
+];
+
+const FACILITIES = [
+  { label: '50m Lap Pool', emoji: '🏊', x: 30, y: 70 },
+  { label: 'Gym', emoji: '🏋️', x: 55, y: 72 },
+  { label: 'BBQ', emoji: '🔥', x: 20, y: 82 },
+  { label: 'Tennis', emoji: '🎾', x: 65, y: 80 },
+  { label: 'Playground', emoji: '🛝', x: 43, y: 84 },
+  { label: 'Clubhouse', emoji: '🏛️', x: 38, y: 55 },
+];
+
+const FLOOR_TYPES = [
+  { floors: '2–8', category: 'Low Floor', description: 'Garden & pool views' },
+  { floors: '9–15', category: 'Mid Floor', description: 'Partial city views' },
+  { floors: '16–25', category: 'High Floor', description: 'Panoramic skyline views' },
+];
 
 export function SitePlan() {
   const navigate = useNavigate();
-  const [selectedBlock, setSelectedBlock] = useState<'A' | 'B' | 'C'>('A');
+  const [selectedBlock, setSelectedBlock] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'siteplan' | 'floors' | 'facilities'>('siteplan');
 
-  const blocks = [
-    { id: 'A' as const, floors: 25, totalUnits: 200, available: 140 },
-    { id: 'B' as const, floors: 25, totalUnits: 200, available: 150 },
-    { id: 'C' as const, floors: 25, totalUnits: 200, available: 132 },
-  ];
-
-  const facilities = [
-    { icon: '🏊', name: '50m Lap Pool' },
-    { icon: '🏋', name: 'Gym' },
-    { icon: '🌳', name: 'Garden Deck' },
-    { icon: '🎾', name: 'Tennis Court' },
-    { icon: '👶', name: "Kids' Playground" },
-    { icon: '🍳', name: 'BBQ Pavilion' },
-    { icon: '🧘', name: 'Yoga Deck' },
-    { icon: '🏃', name: 'Jogging Track' },
-    { icon: '🅿️', name: 'Basement Parking' },
-  ];
-
-  const nearbyPlaces = [
-    { type: 'Transport', items: ['Marine Parade MRT - 5 min', 'Dakota MRT - 8 min'] },
-    { type: 'Schools', items: ['CHIJ Katong Primary - 800m', 'Tanjong Katong Sec - 1.2km'] },
-    { type: 'Shopping', items: ['Parkway Parade - 10 min', 'I12 Katong - 12 min'] },
-    { type: 'F&B', items: ['Katong Food Centre - 8 min', 'Siglap Food Centre - 15 min'] },
-  ];
-
-  const currentBlock = blocks.find(b => b.id === selectedBlock)!;
+  const selected = BLOCKS.find(b => b.id === selectedBlock);
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 h-14 flex items-center">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2">
-          <ArrowLeft className="w-5 h-5" />
+      <header className="sticky top-0 z-40 bg-white border-b border-gray-200 px-4 h-14 flex items-center justify-between">
+        <div className="flex items-center">
+          <button onClick={() => navigate(-1)} className="p-2 -ml-2">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <h1 className="text-base font-semibold ml-2">Site Plan</h1>
+        </div>
+        <button className="p-2 -mr-2 text-gray-500">
+          <Info className="w-4 h-4" />
         </button>
-        <h1 className="text-base font-semibold ml-2">Site Plan & Facilities</h1>
       </header>
 
-      <div className="px-4 py-6 space-y-6">
-        {/* Interactive Site Plan */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-200">
-          <h2 className="font-semibold text-gray-900 mb-4">Site Plan</h2>
-          <div className="bg-gradient-to-br from-[#01696F]/10 to-[#0C4E54]/10 rounded-xl p-6 aspect-square flex items-center justify-center relative">
-            <div className="text-center">
-              <div className="grid grid-cols-3 gap-4 mb-4">
-                {blocks.map((block) => (
-                  <button
-                    key={block.id}
-                    onClick={() => setSelectedBlock(block.id)}
-                    className={`w-16 h-24 rounded-lg flex items-center justify-center text-2xl font-bold transition-all ${
-                      selectedBlock === block.id
-                        ? 'bg-[#01696F] text-white shadow-lg scale-110'
-                        : 'bg-white text-gray-400 border-2 border-gray-200'
-                    }`}
-                  >
-                    {block.id}
-                  </button>
+      {/* Tabs */}
+      <div className="bg-white border-b border-gray-200 flex">
+        {[
+          { id: 'siteplan', label: 'Site Map' },
+          { id: 'floors', label: 'Floor Levels' },
+          { id: 'facilities', label: 'Facilities' },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as typeof activeTab)}
+            className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === tab.id
+                ? 'border-[#01696F] text-[#01696F]'
+                : 'border-transparent text-gray-500'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Site Map Tab */}
+      {activeTab === 'siteplan' && (
+        <div className="px-4 py-4 space-y-4">
+          <div className="bg-white rounded-2xl border border-gray-200 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-gray-900">Project Lighthouse</p>
+              <p className="text-xs text-gray-500">Marine Parade, D15</p>
+            </div>
+
+            {/* SVG Site Map */}
+            <div className="relative w-full bg-[#E8F5E9] rounded-xl overflow-hidden" style={{ paddingBottom: '70%' }}>
+              <svg
+                viewBox="0 0 100 100"
+                className="absolute inset-0 w-full h-full"
+                preserveAspectRatio="xMidYMid meet"
+              >
+                {/* Ground / grass */}
+                <rect x="0" y="0" width="100" height="100" fill="#E8F5E9" />
+
+                {/* Roads */}
+                <rect x="0" y="95" width="100" height="5" fill="#D1D5DB" />
+                <rect x="95" y="0" width="5" height="100" fill="#D1D5DB" />
+                <rect x="8" y="0" width="3" height="100" fill="#D1D5DB" opacity="0.5" />
+
+                {/* Pool area */}
+                <ellipse cx="38" cy="68" rx="12" ry="6" fill="#BAE6FD" stroke="#7DD3FC" strokeWidth="0.5" />
+                <text x="38" y="69.5" textAnchor="middle" fontSize="3" fill="#0369A1" fontWeight="bold">Pool</text>
+
+                {/* Green areas */}
+                <circle cx="25" cy="60" r="5" fill="#86EFAC" opacity="0.5" />
+                <circle cx="70" cy="58" r="4" fill="#86EFAC" opacity="0.5" />
+                <circle cx="50" cy="90" r="4" fill="#86EFAC" opacity="0.5" />
+
+                {/* Blocks */}
+                {BLOCKS.map(block => (
+                  <g key={block.id} onClick={() => setSelectedBlock(block.id === selectedBlock ? null : block.id)}>
+                    <rect
+                      x={block.x}
+                      y={block.y}
+                      width={block.w}
+                      height={block.h}
+                      rx="1.5"
+                      fill={block.id === selectedBlock ? '#F59E0B' : block.color}
+                      opacity={0.9}
+                      className="cursor-pointer"
+                      stroke={block.id === selectedBlock ? '#D97706' : 'transparent'}
+                      strokeWidth="1"
+                    />
+                    <text
+                      x={block.x + block.w / 2}
+                      y={block.y + block.h / 2 - 2}
+                      textAnchor="middle"
+                      fontSize="3.5"
+                      fill="white"
+                      fontWeight="bold"
+                    >
+                      Blk {block.id}
+                    </text>
+                    <text
+                      x={block.x + block.w / 2}
+                      y={block.y + block.h / 2 + 4}
+                      textAnchor="middle"
+                      fontSize="2.5"
+                      fill="white"
+                      opacity="0.8"
+                    >
+                      25F
+                    </text>
+                  </g>
+                ))}
+
+                {/* Facility emojis */}
+                {FACILITIES.map(f => (
+                  <text key={f.label} x={f.x} y={f.y} textAnchor="middle" fontSize="5">
+                    {f.emoji}
+                  </text>
+                ))}
+
+                {/* North indicator */}
+                <g transform="translate(90,8)">
+                  <circle cx="0" cy="0" r="4" fill="white" stroke="#D1D5DB" strokeWidth="0.5" />
+                  <text x="0" y="1.5" textAnchor="middle" fontSize="3.5" fill="#374151" fontWeight="bold">N</text>
+                </g>
+              </svg>
+            </div>
+
+            <p className="text-xs text-gray-400 text-center mt-2">
+              Tap a block to see details
+            </p>
+          </div>
+
+          {/* Selected Block Details */}
+          {selected && (
+            <div className="bg-white rounded-2xl border border-[#01696F]/20 p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-gray-900">Block {selected.id}</h3>
+                <span className="text-xs bg-[#01696F]/10 text-[#01696F] px-2 py-0.5 rounded-full font-medium">
+                  Selected
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                {[
+                  { label: 'Floors', value: `${selected.floors}` },
+                  { label: 'Units', value: `${selected.units}` },
+                  { label: 'Status', value: 'Active' },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-gray-50 rounded-xl p-3 text-center">
+                    <p className="text-lg font-bold text-gray-900">{value}</p>
+                    <p className="text-xs text-gray-500">{label}</p>
+                  </div>
                 ))}
               </div>
-              <div className="flex items-center justify-center gap-4 text-xs">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-sm bg-[#01696F]" />
-                  <span className="text-gray-600">Available</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded-sm bg-gray-300" />
-                  <span className="text-gray-600">Sold</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Block Info */}
-          <div className="mt-4 p-4 bg-[#01696F]/5 rounded-xl">
-            <h3 className="font-semibold text-gray-900 mb-2">Block {currentBlock.id}</h3>
-            <p className="text-sm text-gray-600 mb-1">
-              {currentBlock.floors} storeys, {currentBlock.totalUnits} units
-            </p>
-            <p className="text-sm text-gray-600 mb-3">
-              Available: <span className="font-semibold text-[#01696F]">{currentBlock.available} units</span>
-            </p>
-            <Button
-              onClick={() => navigate('/discover')}
-              size="sm"
-              className="bg-[#01696F] hover:bg-[#0C4E54]"
-            >
-              View units in Block {currentBlock.id} →
-            </Button>
-          </div>
-        </div>
-
-        {/* Facilities */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-200">
-          <h2 className="font-semibold text-gray-900 mb-4">Facilities</h2>
-          <div className="grid grid-cols-3 gap-3">
-            {facilities.map((facility, index) => (
-              <div key={index} className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 rounded-xl bg-[#01696F]/10 flex items-center justify-center text-2xl mb-2">
-                  {facility.icon}
-                </div>
-                <p className="text-xs text-gray-700">{facility.name}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Neighbourhood */}
-        <div className="bg-white rounded-2xl p-6 border border-gray-200">
-          <h2 className="font-semibold text-gray-900 mb-4">Neighbourhood</h2>
-          
-          {/* Map Placeholder */}
-          <div className="bg-gray-100 rounded-xl aspect-video mb-4 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">Interactive map</p>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar mb-4 pb-2">
-            {['Transport', 'Schools', 'Shopping', 'F&B', 'Healthcare'].map((filter, i) => (
-              <button
-                key={filter}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${
-                  i < 4
-                    ? 'bg-[#01696F] text-white'
-                    : 'bg-gray-100 text-gray-700'
-                }`}
+              <Button
+                onClick={() => navigate(`/discover?block=${selected.id}`)}
+                className="w-full bg-[#01696F] hover:bg-[#0C4E54] rounded-xl"
               >
-                {filter}
-              </button>
-            ))}
-          </div>
+                View Units in Block {selected.id}
+              </Button>
+            </div>
+          )}
 
-          {/* Nearby Places */}
-          <div className="space-y-3">
-            {nearbyPlaces.map((category, index) => (
-              <div key={index}>
-                <h3 className="text-sm font-semibold text-gray-900 mb-1.5">{category.type}</h3>
-                <div className="space-y-1">
-                  {category.items.map((item, i) => (
-                    <p key={i} className="text-sm text-gray-600 pl-2">• {item}</p>
-                  ))}
+          {/* Legend */}
+          <div className="bg-white rounded-2xl border border-gray-100 p-4">
+            <h3 className="text-sm font-semibold text-gray-900 mb-3">Legend</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { color: '#01696F', label: 'Residential Block' },
+                { color: '#BAE6FD', label: 'Swimming Pool' },
+                { color: '#86EFAC', label: 'Landscaped Garden' },
+                { color: '#D1D5DB', label: 'Road / Driveway' },
+              ].map(({ color, label }) => (
+                <div key={label} className="flex items-center gap-2 text-xs text-gray-600">
+                  <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: color }} />
+                  {label}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
+      )}
 
-function MapPin({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
+      {/* Floor Levels Tab */}
+      {activeTab === 'floors' && (
+        <div className="px-4 py-4 space-y-3">
+          {FLOOR_TYPES.map(({ floors, category, description }) => (
+            <div key={category} className="bg-white rounded-2xl border border-gray-200 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div>
+                  <p className="font-semibold text-gray-900">{category}</p>
+                  <p className="text-sm text-gray-500">Floors {floors}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-400">Price premium</p>
+                  <p className="text-sm font-semibold text-[#01696F]">
+                    {floors === '2–8' ? 'Base' : floors === '9–15' ? '+4%' : '+8%'}
+                  </p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mb-3">{description}</p>
+              <Button
+                variant="outline"
+                onClick={() => navigate('/discover')}
+                className="w-full border-[#01696F] text-[#01696F] text-xs rounded-xl h-9"
+              >
+                Browse {category} Units
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Facilities Tab */}
+      {activeTab === 'facilities' && (
+        <div className="px-4 py-4 space-y-3">
+          <div className="bg-white rounded-2xl border border-gray-200 p-4">
+            <h2 className="font-semibold text-gray-900 mb-3 text-sm">Recreation & Wellness</h2>
+            <div className="space-y-3">
+              {[
+                { emoji: '🏊', name: '50m Lap Pool', desc: 'Heated · Level 1' },
+                { emoji: '🛁', name: 'Jacuzzi & Wading Pool', desc: 'Level 1' },
+                { emoji: '🏋️', name: 'Gymnasium', desc: '24/7 · Level 2' },
+                { emoji: '🎾', name: 'Tennis Courts (×2)', desc: 'Floodlit · Level 1' },
+                { emoji: '🛝', name: 'Children\'s Playground', desc: 'Shaded · Level 1' },
+              ].map(({ emoji, name, desc }) => (
+                <div key={name} className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-xl flex-shrink-0">
+                    {emoji}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{name}</p>
+                    <p className="text-xs text-gray-500">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-200 p-4">
+            <h2 className="font-semibold text-gray-900 mb-3 text-sm">Community & Social</h2>
+            <div className="space-y-3">
+              {[
+                { emoji: '🏛️', name: 'Grand Clubhouse', desc: 'Events · Level 1' },
+                { emoji: '🔥', name: 'BBQ Pavilions (×4)', desc: 'Level 1 & Rooftop' },
+                { emoji: '🌿', name: 'Sky Garden', desc: 'Level 25' },
+                { emoji: '📚', name: 'Reading Lounge', desc: 'Level 2' },
+                { emoji: '🚗', name: 'Basement Car Park', desc: '650 lots · EV charging' },
+              ].map(({ emoji, name, desc }) => (
+                <div key={name} className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center text-xl flex-shrink-0">
+                    {emoji}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{name}</p>
+                    <p className="text-xs text-gray-500">{desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

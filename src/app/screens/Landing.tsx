@@ -32,9 +32,9 @@ export function Landing() {
 
   const quickLinks = [
     { label: 'View Floor Plans', action: () => navigate('/discover') },
-    { label: 'Calculate Affordability', action: () => alert('Calculator screen coming soon!') },
-    { label: 'Book Showflat', action: () => alert('Booking screen coming soon!') },
-    { label: 'Download E-Brochure', action: () => alert('Documents screen coming soon!') },
+    { label: 'Calculate Affordability', action: () => navigate('/calculator') },
+    { label: 'Book Showflat', action: () => navigate('/booking') },
+    { label: 'Download E-Brochure', action: () => navigate('/documents') },
   ];
 
   return (
@@ -80,7 +80,7 @@ export function Landing() {
           Explore Units
         </Button>
         <Button
-          onClick={() => alert('Advisor chat will be added later!')}
+          onClick={() => navigate('/advisor')}
           variant="outline"
           className="w-full h-12 border-2 border-[#01696F] text-[#01696F] hover:bg-[#01696F]/5 font-semibold rounded-xl"
         >
