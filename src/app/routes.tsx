@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createHashRouter } from "react-router";
 import { Landing } from "./screens/Landing";
 import { Discover } from "./screens/Discover";
 import { UnitDetail } from "./screens/UnitDetail";
@@ -14,7 +14,7 @@ import { SitePlan } from "./screens/SitePlan";
 import { Documents } from "./screens/Documents";
 import { AppLayout } from "./components/AppLayout";
 
-export const router = createBrowserRouter([
+export const router = createHashRouter([
   {
     path: "/",
     Component: AppLayout,
