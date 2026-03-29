@@ -1,11 +1,13 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router';
-import { ChevronLeft, SlidersHorizontal, Bed, Maximize, MapPin, X } from 'lucide-react';
+import { ChevronLeft, SlidersHorizontal, Bed, Maximize, MapPin, X, Heart } from 'lucide-react';
 import { units, Unit } from '../data/units';
 import { Button } from '../components/ui/button';
+import { useApp } from '../context/AppContext';
 
 export function Discover() {
   const navigate = useNavigate();
+  const { isShortlisted, addToShortlist, removeFromShortlist } = useApp();
   const [showFilters, setShowFilters] = useState(false);
   
   // Filter states
@@ -240,7 +242,7 @@ export function Discover() {
           {filteredUnits.map((unit) => (
             <div
               key={unit.id}
-              onClick={() => alert(`Unit details will be added in Screen M3!\nUnit: ${unit.unitNumber}`)}
+              onClick={() => navigate(`/unit/${unit.id}`)}
               className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
             >
               {/* Unit Image */}
@@ -263,6 +265,12 @@ export function Discover() {
                     Sold
                   </div>
                 )}
+                <button
+                  onClick={(e) => { e.stopPropagation(); isShortlisted(unit.id) ? removeFromShortlist(unit.id) : addToShortlist(unit.id); }}
+                  className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow"
+                >
+                  <Heart className="w-4 h-4" fill={isShortlisted(unit.id) ? '#EF4444' : 'none'} stroke={isShortlisted(unit.id) ? '#EF4444' : '#374151'} />
+                </button>
               </div>
 
               {/* Unit Details */}

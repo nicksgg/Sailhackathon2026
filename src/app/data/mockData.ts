@@ -80,7 +80,7 @@ export const generateUnits = (): Unit[] => {
   let unitCount = 1;
   
   // Generate units across 3 blocks, 25 floors each
-  blocks.forEach(block => {
+  outer: for (const block of blocks) {
     for (let floor = 2; floor <= 25; floor++) {
       // 8 units per floor
       for (let unitOnFloor = 1; unitOnFloor <= 8; unitOnFloor++) {
@@ -134,12 +134,10 @@ export const generateUnits = (): Unit[] => {
         units.push(unit);
         unitCount++;
         
-        if (unitCount > 600) break;
+        if (unitCount > 600) break outer;
       }
-      if (unitCount > 600) break;
     }
-    if (unitCount > 600) break;
-  });
+  }
   
   return units.slice(0, 600);
 };
